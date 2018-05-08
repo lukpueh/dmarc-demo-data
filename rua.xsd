@@ -55,6 +55,8 @@
     <xs:element name="sp" type="DispositionType"/>
     <!-- The percent of messages to which policy applies. -->
     <xs:element name="pct" type="xs:integer"/>
+   <!-- Failure reporting options in effect. -->
+   <!-- <xs:element name="fo" type="xs:string"/> -->
   </xs:all>
 </xs:complexType>
 
@@ -147,6 +149,8 @@ trusted_forwarder:  Message authentication failure was anticipated by
   <xs:all>
     <!-- The envelope recipient domain. -->
     <xs:element name="envelope_to" type="xs:string" minOccurs="0"/>
+   <!-- The RFC5321.MailFrom domain. -->
+   <!-- <xs:element name="envelope_from" type="xs:string" minOccurs="1"/> -->
     <!-- The payload From domain. -->
     <xs:element name="header_from" type="xs:string" minOccurs="1"/>
   </xs:all>
@@ -169,12 +173,22 @@ trusted_forwarder:  Message authentication failure was anticipated by
   <xs:all>
     <!-- The d= parameter in the signature -->
     <xs:element name="domain" type="xs:string" minOccurs="1"/>
+   <!-- The "s=" parameter in the signature. -->
+   <!-- <xs:element name="selector" type="xs:string" minOccurs="0"/> -->
     <!-- The DKIM verification result -->
     <xs:element name="result" type="DKIMResultType" minOccurs="1"/>
     <!-- Any extra information (e.g., from Authentication-Results -->
     <xs:element name="human_result" type="xs:string" minOccurs="0"/>
   </xs:all>
 </xs:complexType>
+
+<!-- SPF domain scope. -->
+<!-- <xs:simpleType name="SPFDomainScope">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="helo"/>
+    <xs:enumeration value="mfrom"/>
+  </xs:restriction>
+</xs:simpleType> -->
 
 <!-- SPF result -->
 <xs:simpleType name="SPFResultType">
@@ -195,6 +209,8 @@ trusted_forwarder:  Message authentication failure was anticipated by
   <xs:all>
     <!-- The envelope From domain. -->
     <xs:element name="domain" type="xs:string" minOccurs="1"/>
+    <!-- The scope of the checked domain. -->
+    <!-- <xs:element name="scope" type="SPFDomainScope" minOccurs="1"/> -->
     <!-- The SPF verification result -->
     <xs:element name="result" type="SPFResultType" minOccurs="1"/>
   </xs:all>
