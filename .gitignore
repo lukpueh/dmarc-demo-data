@@ -1,0 +1,4 @@
+*.pyc
+
+# Exclude DMARC aggregate reports that might be created using this tool
+*.xml
