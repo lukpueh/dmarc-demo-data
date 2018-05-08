@@ -1,0 +1,112 @@
+{#
+<Name>
+  rua.xml.j2
+
+<Author>
+  Lukas Puehringer <luk.puehringer@gmail.com>
+
+<Started>
+  May, 2018
+
+<Copyright>
+  See LICENSE for licensing information.
+
+<Purpose>
+  A stand-alone Jinja2 template to generate a DMARC aggregate report (rua)
+  that is conformant with the schema found in `rua.xsd`.
+
+  The following snippet can be used to create a dmarc aggregate report using
+  this template:
+
+
+  ```
+  from jinja2 import FileSystemLoader, Environment
+
+  # Sample report data
+  from data import sample_report
+
+  # Prepare template loader and environment
+  loader = FileSystemLoader(".")
+  env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
+
+  # Load the template
+  template = env.get_template("rua.xml.j2")
+
+  # Render passed data in the template
+  template.render(sample_report)
+  ```
+#}
+<?xml version="1.0" encoding="UTF-8" ?>
+<feedback>
+  <report_metadata>
+    <org_name>{{report_metadata.org_name}}</org_name>
+    <email>{{report_metadata.org_email}}</email>
+    {% if report_metadata.extra_contact_info %}
+    <extra_contact_info>{{report_metadata.extra_contact_info}}</extra_contact_info>
+    {% endif %}
+    <report_id>{{report_metadata.report_id}}</report_id>
+    <date_range>
+      <begin>{{report_metadata.date_range.begin}}</begin>
+      <end>{{report_metadata.date_range.end}}</end>
+    </date_range>
+    {% for error in report_metadata.errors %}
+    <error>{{error}}</error>
+    {% endfor %}
+  </report_metadata>
+  <policy_published>
+    <domain>{{policy_published.domain}}</domain>
+    {% if policy_published.adkim %}
+    <adkim>{{policy_published.adkim}}</adkim>
+    {% endif %}
+    {% if policy_published.aspf %}
+    <aspf>{{policy_published.aspf}}</aspf>
+    {% endif %}
+    <p>{{policy_published.p}}</p>
+    <sp>{{policy_published.sp}}</sp>
+    <pct>{{policy_published.pct}}</pct>
+  </policy_published>
+  {% for record in records %}
+  <record>
+    <row>
+      <source_ip>{{record.row.source_ip}}</source_ip>
+      <count>{{record.row.count}}</count>
+      <policy_evaluated>
+        <disposition>{{record.row.policy_evaluated.disposition}}</disposition>
+        <dkim>{{record.row.policy_evaluated.dkim}}</dkim>
+        <spf>{{record.row.policy_evaluated.spf}}</spf>
+        {% for reason in record.row.policy_evaluated.reasons %}
+        <reason>
+          <type>{{reason.type}}</type>
+          {% if reason.comment %}
+          <comment>{{reason.comment}}</comment>
+          {% endif %}
+        </reason>
+        {% endfor %}
+      </policy_evaluated>
+    </row>
+    <identifiers>
+      {% if record.identifiers.envelope_to %}
+      <envelope_to>{{record.identifiers.envelope_to}}</envelope_to>
+      {% endif %}
+      <header_from>{{record.identifiers.header_from}}</header_from>
+    </identifiers>
+    <auth_results>
+      {% for dkim in record.auth_results.dkim %}
+      <dkim>
+        <domain>{{dkim.domain}}</domain>
+        <result>{{dkim.result}}</result>
+        {% if dkim.human_result %}
+        <human_result>{{dkim.human_result}}</human_result>
+        {% endif %}
+      </dkim>
+      {% endfor %}
+      {% for spf in record.auth_results.spf %}
+      <spf>
+        <domain>{{spf.domain}}</domain>
+        <result>{{spf.result}}</result>
+      </spf>
+      {% endfor %}
+    </auth_results>
+  </record>
+  {% endfor %}
+</feedback>
